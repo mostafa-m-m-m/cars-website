@@ -1,105 +1,77 @@
-import React from 'react'
-import Helmet from '../components/Helmet/Helmet'
-import HeroSlider from '../components/Ui/HeroSlider'
-import { Container , Row,Col } from 'reactstrap'
-import FindCarForm from '../components/Ui/FindCarForm'
-import AboutSection from '../components/Ui/AboutSection'
-import ServicesList from '../components/Ui/ServicesList'
-import carData from "../assets/data/carData"
-import CarItem from '../components/Ui/CarItem'
-import BecomeDriverSection from '../components/Ui/BecomeDriverSection'
-import Testimonial from '../components/Ui/Testimonial'
-import BlogList from '../components/Ui/BlogList'
+import { Link } from 'react-router-dom'
+import { LuArrowRight, LuArrowLeft } from 'react-icons/lu'
+import { useSettings } from '../context/SettingsContext'
+import { useMeta } from '../hooks/useMeta'
+import { img } from '../data/images'
+import { cars } from '../data/cars'
+import { posts, services, testimonials } from '../data/content'
+import { sortCars } from '../lib/filters'
+import FindCarForm from '../components/FindCarForm'
+import { CarCard, SectionHeader, ServiceIcon, Testimonials } from '../components/ui'
 
+export default function Home() {
+  const { t, tr, lang, formatLongDate } = useSettings()
+  useMeta(t('meta.home.title'), t('meta.home.desc'))
+  const featured = sortCars(cars, 'rating').slice(0, 3)
+  const Arrow = lang === 'ar' ? LuArrowLeft : LuArrowRight
 
-
-
-const Home = () => {
   return (
-    <Helmet title="Home">
-      {/* ============== Hero Section ============== */ }
-      <section className="p-0 hero__slider-section">
-        <HeroSlider />
-        <div className="hero__form">
-          <Container >
-            <Row className='form__row'>
-              <Col lg='4' md='4'>
-                <div className="find__cars-left">
-                  <h2>Find Your best car here</h2>
-                </div>
-              </Col>
-              <Col lg="8" md='8' sm='12'>
-                <FindCarForm />
-              </Col>
-            </Row>
-          </Container>
+    <>
+      <section className="hero">
+        <img className="hero__bg" src={img('drive')} alt="" width="1000" height="667" fetchPriority="high" />
+        <div className="container hero__inner">
+          <div className="hero__text">
+            <p className="hero__tag">{t('hero.tag')}</p>
+            <h1>{t('hero.title')}</h1>
+            <p className="hero__lead">{t('hero.lead')}</p>
+          </div>
+          <FindCarForm />
         </div>
       </section>
 
-      {/* aboute seCTION  */}
-      <AboutSection />
-
-      {/* service section  <ServicesList /> */ }
-
-      <section>
-        <Container>
-          <Row>
-            <Col lg="12" sm="6"className='mb-5 text-center' >
-              <h6 className='section__subtilte'>See Our</h6>
-              <h2 className='section__title'>Pupular Services</h2>
-            </Col>
-            <ServicesList />
-          </Row>
-        </Container>
-      </section>
-      {/* car offer section*/}
-      <section>
-        <Container>
-        <Row>
-          <Col lg="12" className='text-center mb-5'>
-            <h6 className='section__subtilte'>Come With</h6>
-            <h2 className='section__title'>Hot Offers</h2>
-          </Col>
-          {
-            carData.slice(0,6).map(item => (
-              <CarItem item={item} key={item.id} />
-            ))
-          }
-        </Row>
-        </Container>
-      </section>
-      {/* Become a Driver Section  */}
-      <BecomeDriverSection />
-
-      {/* Testimonial Section*/}
-      <section>
-        <Container>
-          <Row>
-            <Col lg="12" className='mb-4 text-center'>
-              <h6 className='section__subtilte'>Our cliets says</h6>
-              <h2 className='section__title '>Testimonial</h2>
-            </Col>
-            <Testimonial />
-          </Row>
-        </Container>
+      <section className="section container" aria-labelledby="featured-title">
+        <SectionHeader id="featured-title" title={t('home.featured')}>{t('home.featuredIntro')}</SectionHeader>
+        <div className="grid grid--3">
+          {featured.map((car) => <CarCard key={car.id} car={car} priority />)}
+        </div>
+        <p className="section__more"><Link to="/cars" className="btn btn--ghost">{t('home.allCars')} <Arrow aria-hidden="true" /></Link></p>
       </section>
 
-
-      {/* Blog Section */ }
-      <section>
-        <Container>
-          <Row>
-            <Col lg="12" className='mb-4 text-center'>
-              <h6 className='section__subtilte'>Esplore Our Blogs  </h6>
-              <h2 className='section__title '>Latest Blogs</h2>
-            </Col>
-            <BlogList />
-          </Row>
-        </Container>
+      <section className="section section--tint" aria-labelledby="services-title">
+        <div className="container">
+          <SectionHeader id="services-title" title={t('home.services')}>{t('home.servicesIntro')}</SectionHeader>
+          <div className="grid grid--3">
+            {services.map((s) => (
+              <article key={s.id} className="service">
+                <span className="service__icon"><ServiceIcon name={s.icon} /></span>
+                <h3>{tr(s.title)}</h3>
+                <p className="muted">{tr(s.text)}</p>
+              </article>
+            ))}
+          </div>
+        </div>
       </section>
 
-    </Helmet>
+      <section className="section container" aria-labelledby="reviews-title">
+        <SectionHeader id="reviews-title" title={t('home.reviews')}>{t('home.reviewsNote')}</SectionHeader>
+        <Testimonials items={testimonials} />
+      </section>
+
+      <section className="section container" aria-labelledby="blog-title">
+        <SectionHeader id="blog-title" title={t('home.blog')}>{t('home.blogIntro')}</SectionHeader>
+        <div className="grid grid--3">
+          {posts.map((p) => (
+            <article key={p.id} className="post-card">
+              <Link to={`/blog/${p.id}`} tabIndex={-1} aria-hidden="true"><img src={img(p.image)} alt="" width="870" height="580" loading="lazy" /></Link>
+              <div className="post-card__body">
+                <p className="muted small">{formatLongDate(new Date(p.date))} · {t('blog.minutes', { n: p.minutes })}</p>
+                <h3><Link to={`/blog/${p.id}`}>{tr(p.title)}</Link></h3>
+                <p className="muted">{tr(p.excerpt)}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+    </>
   )
 }
-
-export default Home

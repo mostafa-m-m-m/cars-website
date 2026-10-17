@@ -1,65 +1,43 @@
-import React from 'react'
-import Helmet  from "../components/Helmet/Helmet"
-import CommonSection from '../components/Ui/CommonSection'
-import AboutSection from '../components/Ui/AboutSection'
-import {Container ,Row , Col} from "reactstrap"
-import BecomeDriverSection from "../components/Ui/BecomeDriverSection"
-import driverImg from "../assets/all-images/drive.jpg"
-import OurMembers from '../components/Ui/OurMembers'
-import "../styles/about.css"
-const About = () => {
+import { Link } from 'react-router-dom'
+import { useSettings } from '../context/SettingsContext'
+import { useMeta } from '../hooks/useMeta'
+import { img } from '../data/images'
+import { cars } from '../data/cars'
+import { faqs, locations } from '../data/content'
+import { FaqList, PageHeader, SectionHeader } from '../components/ui'
+
+export default function About() {
+  const { t, formatNumber } = useSettings()
+  useMeta(t('meta.about.title'), t('meta.about.desc'))
+  const stats = [
+    [cars.length, t('about.stats.cars')],
+    [locations.length, t('about.stats.locations')],
+    [24, t('about.stats.support')],
+  ]
   return (
-    <Helmet>
-      <CommonSection title='About Us' />
-      <AboutSection aboutClass="aboutPage" />
-
-      <section className='about__page-section'>
-        <Container >
-          <Row>
-            <Col lg="6" md="6" sm="12" >
-              <div className="about__page-img">
-                <img src={driverImg} alt="" className='w-100 rounded-3' />
-              </div>
-            </Col>
-            <Col lg="6" md="6" sm="12">
-              <div className="about__page-content">
-                <h2 className='section__tilte'>We Are Committed To Provide Safe Ride Soultion</h2>
-                <p className='section__description'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Architecto, excepturi? Pariatur voluptas, molestias quibusdam doloribus sequi perferendis quae, veritatis ut ex et cum rem impedit placeat labore rerum quas ad.</p>
-                <p className='section__description'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Architecto, excepturi? Pariatur voluptas, molestias quibusdam doloribus sequi perferendis quae, veritatis ut ex et cum rem impedit placeat labore rerum quas ad.</p>
-
-                <div className='d-flex align-items-center gap-3 mt-4'>
-                  <span className='fs-4'>
-                    <i className='ri-phone-line'></i>
-                  </span>
-                  
-                  <div>
-                    <h6 className='section__subtilte'>Need Any Help?</h6>
-                    <h4>+00123456789</h4>
-                    </div>
-                </div>
-              </div> 
-            </Col>
-          </Row>
-        </Container>
-
+    <>
+      <PageHeader title={t('nav.about')}>{t('about.intro')}</PageHeader>
+      <section className="section container about">
+        <img src={img('drive')} alt="" width="1000" height="667" loading="lazy" />
+        <div>
+          <h2>{t('about.title')}</h2>
+          <p>{t('about.p1')}</p>
+          <p className="muted">{t('about.p2')}</p>
+          <p><Link to="/cars" className="btn">{t('home.allCars')}</Link></p>
+        </div>
       </section>
-      <BecomeDriverSection />
-
-      <section>
-        <Container>
-          <Row>
-            <Col lg='12' className='mb-5 text-center' >
-              <h6 className='section__subtilte'>Experis</h6>
-              <h2 className='section__title'>Our Members</h2>
-            
-            </Col>
-            <OurMembers />
-          </Row>
-        </Container>
+      <section className="stats container" aria-label={t('about.stats.label')}>
+        {stats.map(([n, label]) => (
+          <div key={label} className="stat">
+            <p className="stat__n">{formatNumber(n)}</p>
+            <p className="muted">{label}</p>
+          </div>
+        ))}
       </section>
-    
-    </Helmet>
+      <section className="section container" aria-labelledby="faq-title">
+        <SectionHeader id="faq-title" title={t('about.faq')}>{t('about.faqIntro')}</SectionHeader>
+        <FaqList items={faqs} />
+      </section>
+    </>
   )
 }
-
-export default About

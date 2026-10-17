@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000d6b" />
+    <meta name="description" content="Rent a car in Cairo: transparent daily prices, flexible pick-up points and a booking you can manage online." />
+    <meta property="og:title" content="Masar Car Rental" />
+    <meta property="og:description" content="Rent a car in Cairo with transparent daily prices. Arabic and English." />
+    <meta property="og:type" content="website" />
+    <title>Masar Car Rental</title>
+    <script>
+      // Apply theme, language and direction before the first paint to avoid a flash.
+      try {
+        var read = function (key) { try { return JSON.parse(localStorage.getItem(key)) } catch (e) { return null } }
+        var lang = read('masar.lang') || (navigator.language && navigator.language.indexOf('ar') === 0 ? 'ar' : 'en')
+        var root = document.documentElement
+        root.lang = lang
+        root.dir = lang === 'ar' ? 'rtl' : 'ltr'
+        root.dataset.theme = read('masar.theme') || 'light'
+      } catch (e) {
+        document.documentElement.dataset.theme = 'light'
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

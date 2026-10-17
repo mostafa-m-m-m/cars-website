@@ -1,70 +1,87 @@
-# Getting Started with Create React App
+# Masar Car Rental
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A bilingual (Arabic and English) car rental website for a fictional Cairo company. The point of the project is the **booking flow**: search a catalog, pick dates, see a live price breakdown, make a validated reservation, and manage it afterwards.
 
-## Available Scripts
+> **Concept project.** The business, prices, reviews and availability are fictional and the photos are stock images. No payment details are ever collected; bookings are stored only in your browser.
+>
+> **Live demo:** _add your Vercel link here after deploying_
 
-In the project directory, you can run:
+![Home with the search form](docs/screenshots/home.png)
 
-### `npm start`
+| Catalog with filters | Booking with a live price summary |
+| --- | --- |
+| ![Cars](docs/screenshots/cars.png) | ![Booking](docs/screenshots/booking.png) |
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+| My bookings | Arabic, dark theme, RTL | Phone |
+| --- | --- | --- |
+| ![Bookings](docs/screenshots/bookings.png) | ![Arabic dark](docs/screenshots/arabic-dark.png) | ![Mobile](docs/screenshots/mobile.png) |
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## What it does
 
-### `npm test`
+- **Catalog of 9 cars** with real names that match their photos. Search, filter by type, seats, fuel and price, and sort; all of it lives in the URL, so a filtered view can be shared or refreshed. Colour swatches switch the car image.
+- **Search from the home page** validates the dates and carries them to the catalog, where every card shows the **total for the whole stay**.
+- **Booking page** with pick-up and return date and time, locations, extras, and a **live price breakdown** (days, extras, 14% VAT, total). Rentals are charged per started 24 hours, minimum one day, maximum 30 days.
+- **Validation** on every field (Egyptian mobile numbers, Arabic digits accepted), past dates and reversed ranges rejected, focus moves to the first problem.
+- **No double booking:** the same car cannot be reserved twice for overlapping dates; back-to-back is allowed; cancelling frees the dates.
+- **My bookings:** confirmation with a reference, status, cancel with a confirmation dialog that tells you whether cancellation is still free (24 hours before pick-up). Persisted in `localStorage`, safe against corrupted data.
+- **Arabic and English** with full RTL, localized numbers, prices (EGP, ج.م), dates and times; **light and dark** themes; both remembered and applied before first paint.
+- Blog with three articles, FAQ accordion, review carousel, contact form, a real 404 (no more crash on an unknown car URL), and redirects for the old URLs.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Tech
 
-### `npm run build`
+React 19 · Vite · React Router 7 · plain CSS with design tokens and logical properties · self-hosted fonts (Inter, Cairo) · native `<dialog>` · Vitest · Playwright · axe-core · ESLint 9. No UI framework.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+The rules that matter are **pure functions** with their own tests: `lib/pricing.js` (dates, days, VAT, overlap, free-cancel window), `lib/filters.js` (search, filter, sort, safe URL parsing) and `lib/validate.js`. Content is data: every user-facing string is `{ en, ar }` or a key in `src/i18n`.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Run it
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```bash
+npm install
+npm run dev        # http://localhost:3003
+npm run build
+npm run preview
+```
 
-### `npm run eject`
+## Tests
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+```bash
+npm run lint
+npm test                 # unit tests
+npx playwright install   # once
+npm run test:e2e         # e2e and accessibility on Chromium, Firefox, WebKit and a phone viewport
+npm run test:visual      # screenshot regression (Chromium; baselines are per platform)
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+- **Unit (32):** days and price maths (24 hour periods, VAT rounding, 30 day limit), overlap and cancellation window, catalog filters and sorting, hostile URL values, validation (Egyptian phone formats, Arabic digits), translation parity, **every translation key used in the code exists and none is unused**, and every content string exists in both languages.
+- **End-to-end and accessibility (330+ runs):** every page and link, 404 and legacy redirects, the home search, all catalog filters and sorting, the full booking journey including exact totals, validation, overlap prevention, cancelling (free and late), persistence across reloads, corrupted storage, Arabic booking with Arabic digits, no horizontal scroll, and **axe-core on every page in both languages and themes**, plus error states, the cancel dialog, and a keyboard-only booking.
+- Skipped on WebKit with a stated reason: Safari does not Tab to links by default.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## Quality numbers
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+Lighthouse on the production build, mobile (simulated slow 4G):
 
-## Learn More
+| Page | Performance | Accessibility | Best practices | SEO |
+| --- | --- | --- | --- | --- |
+| Home | 89 | 100 | 100 | 100 |
+| Cars | 86 | 100 | 100 | 100 |
+| Car detail | 93–95 | 100 | 100 | 100 |
+| My bookings, About, Contact, Blog | 95–98 | 100 | 100 | 100 |
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Desktop is 100 across the board on the home page. Images were converted to WebP: 2.3 MB became 0.6 MB.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Structure
 
-### Code Splitting
+```
+src/
+  components/  Layout, ui (cards, FAQ, carousel, dialog, fields), FindCarForm
+  pages/       Home, Cars, CarDetail (booking), Bookings, Blog, About, Contact, NotFound
+  data/        cars, content (locations, extras, services, reviews, FAQ, posts), images
+  lib/         pricing, filters, validate, dates (pure, unit tested)
+  context/     settings (language, theme), bookings (state + localStorage)
+  i18n/        en, ar
+e2e/           Playwright specs
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+## History
 
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+The first version was a Create React App template with four UI libraries. The original is in the git history. The rebuild fixed: a white-screen crash on unknown car URLs, a booking form with no state or submit (and an email-typed "From address"), sort, search and contact forms that did nothing, unrelated photos and names, Lorem ipsum everywhere, 2.3 MB of images, and the move off an unmaintained toolchain, with zero `npm audit` vulnerabilities.
