@@ -4,7 +4,7 @@ A bilingual (Arabic and English) car rental website for a fictional Cairo compan
 
 > **Concept project.** The business, prices, reviews and availability are fictional and the photos are stock images. No payment details are ever collected; bookings are stored only in your browser.
 >
-> **Live demo:** _add your Vercel link here after deploying_
+> **Live demo:** https://masar-car-rental.vercel.app
 
 ![Home with the search form](docs/screenshots/home.png)
 
